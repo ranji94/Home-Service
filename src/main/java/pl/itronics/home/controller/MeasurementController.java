@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import pl.itronics.home.domain.Measurement;
+import pl.itronics.home.enums.MeasurementStatus;
 import pl.itronics.home.service.MeasurementService;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class MeasurementController {
         this.measurementService = measurementService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/measurement/save")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/measurement/add")
     public ResponseEntity<Measurement> saveMeasurement(Measurement measurement) {
         return new ResponseEntity<>(measurementService.saveMeasurement(measurement), HttpStatus.OK);
     }
@@ -47,5 +48,11 @@ public class MeasurementController {
         }
 
         return new ResponseEntity<>(measurements, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/measurement/updateStatus")
+    public ResponseEntity<String> updateStatus(Integer id, MeasurementStatus status) {
+        String updatedStatus = measurementService.updateStatus(id, status);
+        return new ResponseEntity<>(updatedStatus, updatedStatus.equals("SUCCESS") ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 }
