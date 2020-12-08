@@ -23,8 +23,8 @@ It is highly recommended to use deploy this service only on servers over local n
 * After successful pushing database credentials, restart running home service "sudo systemctl restart home.service"
 * Now service is configured and ready to work with HomeUI app
 
-# (Optional) Manual automated e-mail configuration
-This action can be completed using HomeUI app. But there is alternative way to configure e-mail exists:
+# (Optional) Manual e-mail configuration
+This action can be completed using HomeUI app. But there is also alternative way to configure e-mail exists:
 * Go to http://host_ip_address:port/swagger-ui/index.html (default port is 8080)
 * Open Mail/Update
 * Fill fields like as described below:
