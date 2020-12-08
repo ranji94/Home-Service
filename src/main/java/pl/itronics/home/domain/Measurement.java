@@ -1,24 +1,14 @@
 package pl.itronics.home.domain;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import net.minidev.json.annotate.JsonIgnore;
+import pl.itronics.home.enums.MeasurementStatus;
 
 public class Measurement {
-    @JsonIgnore
     private Integer id;
     private SingleWaterReading kitchenReadings;
     private SingleWaterReading bathroomReadings;
     private SingleEnergyReading energyReading;
-    @JsonIgnore
     private String date;
-
-    public Measurement(SingleWaterReading kitchenReadings, SingleWaterReading bathroomReadings, SingleEnergyReading energyReading, String date) {
-        this.kitchenReadings = kitchenReadings;
-        this.bathroomReadings = bathroomReadings;
-        this.energyReading = energyReading;
-        this.date = date;
-    }
+    private MeasurementStatus status;
 
     public Measurement() {
     }
@@ -61,6 +51,14 @@ public class Measurement {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public MeasurementStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MeasurementStatus status) {
+        this.status = status;
     }
 
     @Override

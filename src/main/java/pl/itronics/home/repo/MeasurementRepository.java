@@ -6,6 +6,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import pl.itronics.home.domain.*;
+import pl.itronics.home.enums.MeasurementStatus;
+import pl.itronics.home.service.MeasurementService;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -17,22 +19,40 @@ public class MeasurementRepository {
     @Autowired
     JdbcTemplate template;
 
-    final String INSERT_READING_SQL = "INSERT INTO" +
+    private final String INSERT_READING_SQL = "INSERT INTO" +
             " measurements(" +
-            " date, energy_reading, kitchen_hot_water_reading, kitchen_cold_water_reading, bathroom_hot_water_reading, bathroom_cold_water_reading)" +
-            " VALUES (?, ?, ?, ?, ?, ?);";
+            " date, energy_reading, kitchen_hot_water_reading, kitchen_cold_water_reading, bathroom_hot_water_reading, bathroom_cold_water_reading, status)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?);";
 
-    final String SELECT_ALL = "SELECT " +
+    private final String SELECT_ALL = "SELECT " +
             "id, " +
             "date, " +
             "energy_reading, " +
             "kitchen_hot_water_reading, " +
             "kitchen_cold_water_reading, " +
             "bathroom_hot_water_reading, " +
-            "bathroom_cold_water_reading " +
+            "bathroom_cold_water_reading, " +
+            "status " +
             "FROM measurements";
 
-    final String SELECT_BY_ID = SELECT_ALL + " WHERE id=?;";
+    private final String SELECT_BY_ID = SELECT_ALL + " WHERE id=?;";
+
+    private final String SELECT_LAST_MEASUREMENT = "SELECT id," +
+            " date," +
+            " energy_reading," +
+            " kitchen_hot_water_reading," +
+            " kitchen_cold_water_reading," +
+            " bathroom_hot_water_reading," +
+            " bathroom_cold_water_reading, " +
+            " status " +
+            "FROM measurements " +
+            "ORDER BY date " +
+            "DESC " +
+            "LIMIT 1;";
+
+    private final String UPDATE_STATUS = "UPDATE measurements" +
+            " SET status='${status}'" +
+            " WHERE id=${id};";
 
     public long insert(final Measurement measurement) {
         SimpleDateFormat formatter= new SimpleDateFormat("dd.MM.yyyy, HH:mm:ss z");
@@ -47,6 +67,7 @@ public class MeasurementRepository {
             ps.setString(4, measurement.getKitchenReadings().getColdWater().getValue());
             ps.setString(5, measurement.getBathroomReadings().getHotWater().getValue());
             ps.setString(6, measurement.getBathroomReadings().getColdWater().getValue());
+            ps.setString(7, measurement.getStatus() == null ? "WAITING_FOR_SEND" : measurement.getStatus().toString());
             return ps;
         }, keyHolder);
 
@@ -74,6 +95,24 @@ public class MeasurementRepository {
         }
     }
 
+    public String updateStatus(final int identifier, final MeasurementStatus status) {
+        try {
+            Connection connection = template.getDataSource().getConnection();
+            Statement st = connection.createStatement();
+            String query = UPDATE_STATUS.replace("${id}", String.valueOf(identifier))
+                    .replace("${status}", status.toString());
+            System.out.println("QUERY EXECUTED: " + query);
+            ResultSet rs = st.executeQuery(query);
+            mapRowsToMeasurements(rs);
+            st.close();
+
+            return "SUCCESS";
+        }
+        catch(SQLException e) {
+            return "FAILED";
+        }
+    }
+
     public List<Measurement> findAll() {
         try {
             Connection connection = template.getDataSource().getConnection();
@@ -90,6 +129,26 @@ public class MeasurementRepository {
         }
     }
 
+    public Measurement findLast() {
+        try {
+            Connection connection = template.getDataSource().getConnection();
+            Statement st = connection.createStatement();
+
+            ResultSet rs = st.executeQuery(SELECT_LAST_MEASUREMENT);
+            List<Measurement> measurements = mapRowsToMeasurements(rs);
+            st.close();
+
+            if(measurements.isEmpty()) {
+                return new Measurement();
+            }
+
+            return measurements.get(0);
+        }
+        catch (SQLException e) {
+            return new Measurement();
+        }
+    }
+
     private List<Measurement> mapRowsToMeasurements(ResultSet rs) throws SQLException{
         List<Measurement> measurements = new ArrayList<>();
 
@@ -98,6 +157,8 @@ public class MeasurementRepository {
             Measurement measurement = new Measurement();
             measurement.setId(rs.getInt("id"));
             measurement.setDate(rs.getString("date"));
+            System.out.println(rs.getString("status"));
+            measurement.setStatus(MeasurementStatus.valueOf(rs.getString("status")));
 
             SingleEnergyReading singleEnergyReading = new SingleEnergyReading();
             singleEnergyReading.setEnergyReading(new EnergyMeter(rs.getString("energy_reading")));

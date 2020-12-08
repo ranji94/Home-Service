@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import pl.itronics.home.utils.LocalCreds;
 
 import javax.sql.DataSource;
 
@@ -14,9 +15,12 @@ public class SpringJDBCConfig {
     public DataSource postgresDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://192.168.0.13:5432/homeservice");
-        dataSource.setUsername("pi");
-        dataSource.setPassword("");
+        dataSource.setUrl("jdbc:postgresql://" +
+                LocalCreds.getCredentials("db:server") +
+                "/" +
+                LocalCreds.getCredentials("db:database"));
+        dataSource.setUsername(LocalCreds.getCredentials("db:user"));
+        dataSource.setPassword(LocalCreds.getCredentials("db:pass"));
 
         return dataSource;
     }
