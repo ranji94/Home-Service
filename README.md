@@ -25,9 +25,9 @@ It is highly recommended to use deploy this service only on servers over local n
 
 # (Optional) Manual e-mail configuration
 This action can be completed using HomeUI app. But there is also alternative way to configure e-mail exists:
-* Go to http://host_ip_address:port/swagger-ui/index.html (default port is 8080)
-* Open Mail/Update
-* Fill fields like as described below:
+1. Go to http://host_ip_address:port/swagger-ui/index.html (default port is 8080)
+2. Open Mail/Update
+3. Fill fields like as described below:
 - mailpass: Your source e-mail account password
 - signature: Signature added to every sent message, it can be something like: "Kind Regards,{CR}John Smith"
 - source: Source e-mail addres in format like: "john.smith@server.com"
@@ -35,10 +35,10 @@ This action can be completed using HomeUI app. But there is also alternative way
 - target: Target e-mail addres in format by analogy like source
 - template: Body of e-mail address with limit to 4096 characters.
 
-* template, subject, signature fields supports automatic inserting of collected values and formatting templates by using program variables:
-{CR} - carriage return, this character enters new line
-{month} - inserts current month, for example "December"
-{year} - inserts current year, for example "2020"
-{energy} - last collected energy meter value, returns for example "43.843 kWh"
-{kitchen_cold} - refers to water meter value, first element of variable is room name, and second one is name of water meter (hot/cold). Returns for example: "13.435 m3". Other available variables like this: {kitchen_hot}, {bathroom_cold}, {bathroom_hot}
-{signature} - Variable dedicated only for template body, points where signature should be placed in message body
+Info: **template**, **subject**, **signature** fields supports automatic inserting of collected values and formatting templates by using program variables:
+* **{CR}** - carriage return, this character enters new line
+* **{month}** - inserts current month, for example "December"
+* **{year}** - inserts current year, for example "2020"
+* **{energy}** - last collected energy meter value, returns for example "43.843 kWh"
+* **{kitchen_cold}** - refers to water meter value, first element of variable is room name, and second one is name of water meter (hot/cold). Returns for example: "13.435 m3". Other available variables to use in this case, is: **{kitchen_hot}**, **{bathroom_cold}**, **{bathroom_hot}**
+* **{signature}** - Variable dedicated only for template body, points where signature should be placed in message body
